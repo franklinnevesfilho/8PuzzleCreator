@@ -32,12 +32,9 @@ class Screen:
                 widget.destroy()
             frame.pack_forget()
 
+
     def create_upload_screen(self):
-        # Clear any existing frames
-        for frame in [self.upload_frame, self.puzzle_frame, self.game_frame]:
-            for widget in frame.winfo_children():
-                widget.destroy()
-            frame.pack_forget()
+        self.clear_frames()
 
         # Show upload frame
         self.upload_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
@@ -102,6 +99,7 @@ class Screen:
                 messagebox.showerror("Error", f"Could not open image: {e}")
 
     def create_puzzle_pieces(self):
+        self.clear_frames()
         if not self.original_image:
             messagebox.showwarning("Warning", "Please upload an image first")
             return
@@ -197,8 +195,9 @@ class Screen:
         )
         back_button.pack(pady=10)
 
+
+
     def show_game_screen(self):
-        # Clear previous frames
         self.puzzle_frame.pack_forget()
         self.game_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
 
@@ -219,16 +218,26 @@ class Screen:
         game_container.pack(pady=10)
 
         # Display randomized pieces
-        game_piece_labels = []
         for i in range(3):
             for j in range(3):
-                piece = randomized_pieces[i * 3 + j]
-                photo = ImageTk.PhotoImage(piece)
+                piece = randomized_pieces[i][j]
+                photo = None
 
-                piece_label = tk.Label(game_container, image=photo)
-                piece_label.image = photo
-                piece_label.grid(row=i, column=j, padx=5, pady=5)
-                game_piece_labels.append(piece_label)
+                # Create thumbnail for display
+                if piece is not None:
+                    piece_thumb = piece.copy()
+                    piece_thumb.thumbnail((100, 100))
+                    photo = ImageTk.PhotoImage(piece_thumb)
+
+                # Create a image button, set the bottom right piece as disabled with a dark tint
+                if i == 2 and j == 2:
+                    piece_button = tk.Button(game_container, image=photo, state=tk.DISABLED, bg="gray")
+                else:
+                    piece_button = tk.Button(game_container, image=photo, command=lambda i=i, j=j: self.move_piece(i, j))
+
+                piece_button.image = photo
+                piece_button.grid(row=i, column=j, padx=5, pady=5)
+
 
         # Back and Reset buttons
         button_frame = tk.Frame(self.game_frame)
@@ -241,6 +250,7 @@ class Screen:
             font=("Arial", 10)
         )
         back_button.pack(side=tk.LEFT, padx=10)
+
 
     def solve_puzzle(self):
         # Similar to game screen, but show pieces in correct order
