@@ -15,7 +15,7 @@ class Screen:
         # Original image attributes
         self.original_image = None
         self.image_path = None
-        self.puzzle_pieces = []
+        self.puzzle_pieces = [[None]*3 for _ in range(3)]
         self.puzzle_piece_labels = []
 
         # Screens
@@ -127,7 +127,7 @@ class Screen:
             widget.destroy()
 
         # Reset puzzle pieces list
-        self.puzzle_pieces = []
+        self.puzzle_pieces = [[None] * 3 for _ in range(3)]  # Ensure a proper matrix
         self.puzzle_piece_labels = []
 
         # Title
@@ -154,19 +154,15 @@ class Screen:
                 # Crop piece
                 piece = self.original_image.crop((left, top, right, bottom))
 
-                # Save piece
-                piece_filename = os.path.join(output_dir, f"piece_{row}_{col}.png")
-                piece.save(piece_filename)
-
                 # Create thumbnail for display
                 piece_thumb = piece.copy()
                 piece_thumb.thumbnail((100, 100))
                 photo = ImageTk.PhotoImage(piece_thumb)
 
-                # Store piece image
-                self.puzzle_pieces.append(piece)
+                # Store piece image in the 2D list
+                self.puzzle_pieces[row][col] = piece
 
-                # Display piece in grid
+                # Display piece
                 piece_label = tk.Label(pieces_container, image=photo)
                 piece_label.image = photo
                 piece_label.grid(row=row, column=col, padx=5, pady=5)
