@@ -1,6 +1,7 @@
 from screen import Screen
-
+import tkinter as tk
 
 if __name__ == "__main__":
-    screen = Screen()
-    screen.run()
+    root = tk.Tk()
+    app = Screen(root)
+    root.mainloop()
